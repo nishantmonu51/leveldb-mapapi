@@ -27,8 +27,8 @@ package nl.gridline.leveldb.bindings.utils;
 public class Bytes
 {
 
-	public static final int SIZE_OF_INT = Integer.SIZE / 8;
-	public static final int SIZE_OF_LONG = Long.SIZE / 8;
+	public static final int SIZE_OF_INT = Integer.SIZE / Byte.SIZE;
+	public static final int SIZE_OF_LONG = Long.SIZE / Byte.SIZE;
 
 	public static int toInt(byte[] bytes)
 	{
