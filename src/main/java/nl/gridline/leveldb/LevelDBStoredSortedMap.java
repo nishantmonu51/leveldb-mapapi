@@ -75,6 +75,45 @@ public class LevelDBStoredSortedMap<K, V> extends LevelDBStoredMap<K, V> impleme
 	}
 
 	@Override
+	public void clear()
+	{
+		// Clear all, in case this is not a submap:
+		if (start == null && end == null)
+		{
+			super.clear();
+			return;
+		}
+		// Clear partial in case we are in a submap:
+		try (DBIterator i = getDBIterator())
+		{
+			while (i.hasNext())
+			{
+				int size = 0;
+				try (WriteBatch batch = db.createWriteBatch())
+				{
+					while (i.hasNext() && size < BATCH_LIMIT)
+					{
+						if (isKeyWithinBounds(i.peekNext().getKey()))
+						{
+							batch.delete(i.next().getKey());
+							size++;
+						}
+						else
+						{
+							i.next();
+						}
+					}
+					db.write(batch);
+				}
+			}
+		}
+		catch (IOException e)
+		{
+		}
+
+	}
+
+	@Override
 	public V get(Object key)
 	{
 		if (!isKeyWithinBounds(byteKey(key)))
@@ -94,28 +133,6 @@ public class LevelDBStoredSortedMap<K, V> extends LevelDBStoredMap<K, V> impleme
 		}
 
 		return super.put(key, value);
-	}
-
-	@Override
-	public void putAll(Map<? extends K, ? extends V> m)
-	{
-		try (WriteBatch batch = db.createWriteBatch())
-		{
-			for (java.util.Map.Entry<? extends K, ? extends V> entry : m.entrySet())
-			{
-				byte[] byteKey = byteKey(entry.getKey());
-				if (!isKeyWithinBounds(byteKey))
-				{
-					throw new IllegalArgumentException();
-				}
-				batch.put(byteKey, byteValue(entry.getValue()));
-			}
-
-			db.write(batch);
-		}
-		catch (IOException e)
-		{
-		}
 	}
 
 	@Override
