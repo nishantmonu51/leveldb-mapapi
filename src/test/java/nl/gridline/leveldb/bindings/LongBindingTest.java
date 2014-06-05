@@ -14,7 +14,6 @@
 
 package nl.gridline.leveldb.bindings;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -39,12 +38,11 @@ public class LongBindingTest
 	@Test
 	public void testDeserialize() throws Exception
 	{
-		byte[] arr = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
-		assertArrayEquals(arr, binding.serialize(binding.deserialize(arr)));
-
-		byte[] arr2 = new byte[]{1, 2, -3, 4, 5, 6, -7, 8};
-		assertArrayEquals(arr2, binding.serialize(binding.deserialize(arr)));
-
+		assertEquals(1, binding.deserialize(binding.serialize(1L)).longValue());
+		assertEquals(-2, binding.deserialize(binding.serialize(-2L)).longValue());
+		assertEquals(-3, binding.deserialize(binding.serialize(-3L)).longValue());
+		assertEquals(Long.MIN_VALUE, binding.deserialize(binding.serialize(Long.MIN_VALUE)).longValue());
+		assertEquals(Long.MAX_VALUE, binding.deserialize(binding.serialize(Long.MAX_VALUE)).longValue());
 	}
 
 }

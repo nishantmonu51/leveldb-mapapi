@@ -14,7 +14,6 @@
 
 package nl.gridline.leveldb.bindings;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -43,11 +42,11 @@ public class IntegerBindingTest
 	@Test
 	public void testDeserialize() throws Exception
 	{
-		byte[] arr = new byte[]{1, 2, 3, 4};
-		assertArrayEquals(arr, binding.serialize(binding.deserialize(arr)));
-
-		byte[] arr2 = new byte[]{1, -2, -3, 4};
-		assertArrayEquals(arr2, binding.serialize(binding.deserialize(arr)));
+		assertEquals(1, binding.deserialize(binding.serialize(1)).intValue());
+		assertEquals(-2, binding.deserialize(binding.serialize(-2)).intValue());
+		assertEquals(-3, binding.deserialize(binding.serialize(-3)).intValue());
+		assertEquals(Integer.MIN_VALUE, binding.deserialize(binding.serialize(Integer.MIN_VALUE)).intValue());
+		assertEquals(Integer.MAX_VALUE, binding.deserialize(binding.serialize(Integer.MAX_VALUE)).intValue());
 
 	}
 }
