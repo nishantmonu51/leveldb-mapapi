@@ -46,7 +46,7 @@ import org.iq80.leveldb.WriteBatch;
  */
 public class LevelDBStoredMap<K, V> implements StoredMap<K, V>
 {
-	private static final int BATCH_LIMIT = 1000; // create batches of max 1000 items.
+	protected static final int BATCH_LIMIT = 1000; // create batches of max 1000 items.
 
 	protected DB db;
 	protected final EntryBinding<K> keyBinding;
