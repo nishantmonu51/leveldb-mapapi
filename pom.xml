@@ -50,6 +50,11 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -78,5 +83,18 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
+	
+	<scm>
+		<connection>scm:git:git@github.com:jobtg/leveldb-mapapi.git</connection>
+		<developerConnection>scm:git:git@github.com:jobtg/leveldb-mapapi.git</developerConnection>
+		<url>https://github.com/jobtg/leveldb-mapapi</url>
+	</scm>
+	
+	<distributionManagement>
+		<repository>
+			<id>gridline-distribution</id>
+			<name>gridline-distribution</name>
+			<url>http://hudson:8081/nexus/content/repositories/releases/</url>
+		</repository>
+	</distributionManagement>
 </project>
