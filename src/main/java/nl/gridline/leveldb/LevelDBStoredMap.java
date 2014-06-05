@@ -46,6 +46,7 @@ import org.iq80.leveldb.WriteBatch;
  */
 public class LevelDBStoredMap<K, V> implements StoredMap<K, V>
 {
+	private static final int BATCH_LIMIT = 1000; // create batches of max 1000 items.
 
 	protected DB db;
 	protected final EntryBinding<K> keyBinding;
@@ -61,16 +62,21 @@ public class LevelDBStoredMap<K, V> implements StoredMap<K, V>
 	@Override
 	public void clear()
 	{
-		try (WriteBatch batch = db.createWriteBatch())
+		try (DBIterator i = getDBIterator())
 		{
-			try (DBIterator i = getDBIterator())
+			while (i.hasNext())
 			{
-				for (i.seekToFirst(); i.hasNext(); i.next())
+				int size = 0;
+				try (WriteBatch batch = db.createWriteBatch())
 				{
-					batch.delete(i.peekNext().getKey());
+					while (i.hasNext() && size < BATCH_LIMIT)
+					{
+						batch.delete(i.next().getKey());
+						size++;
+					}
+					db.write(batch);
 				}
 			}
-			db.write(batch);
 		}
 		catch (IOException e)
 		{
@@ -201,18 +207,24 @@ public class LevelDBStoredMap<K, V> implements StoredMap<K, V>
 	@Override
 	public void putAll(Map<? extends K, ? extends V> m)
 	{
-		try (WriteBatch batch = db.createWriteBatch())
+		Iterator<?> i = m.entrySet().iterator();
+		while (i.hasNext())
 		{
-			for (java.util.Map.Entry<? extends K, ? extends V> entry : m.entrySet())
+			int size = 0;
+			try (WriteBatch batch = db.createWriteBatch())
 			{
-				batch.put(byteKey(entry.getKey()), byteValue(entry.getValue()));
+				while (i.hasNext() && size < BATCH_LIMIT)
+				{
+					Entry<?, ?> entry = (Entry<?, ?>) i.next();
+					batch.put(byteKey(entry.getKey()), byteValue(entry.getValue()));
+				}
+				db.write(batch);
 			}
+			catch (IOException e)
+			{
+			}
+		}
 
-			db.write(batch);
-		}
-		catch (IOException e)
-		{
-		}
 	}
 
 	@Override
